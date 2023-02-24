@@ -35,6 +35,15 @@ builds:
         goarch: arm64
 
 archives:
+  - id: others
+    builds:
+      - others
+    rlcp: true
+    wrap_in_directory: true
+    files:
+      - src: "docs/*"
+        strip_parent: true
+
   - id: common
     builds:
       - common
@@ -45,15 +54,6 @@ archives:
     files:
       - src: "dist/{{ .ProjectName }}_{{ .Tag }}_{386,amd64,arm,arm64}"
         strip_parent: true
-      - src: "docs/*"
-        strip_parent: true
-
-  - id: others
-    builds:
-      - others
-    rlcp: true
-    wrap_in_directory: true
-    files:
       - src: "docs/*"
         strip_parent: true
 
