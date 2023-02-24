@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+project_name: goreleaser_issue
+
+before:
+  hooks:
+    - go mod tidy
+
+env:
+  - CGO_ENABLED=0
+
+builds:
+  # Archive these common versions into one tar.gz file
+  - id: common
+    binary: goreleaser_issue_{{.Tag}}_{{.Arch}}
+    no_unique_dist_dir: true
+    targets:
+      - linux_386
+      - linux_amd64
+      - linux_arm_6
+      - linux_arm64
+
+  # Archive other versions into its specific tar.gz file
+  - id: others
+    binary: goreleaser_issue_{{.Tag}}_{{.Arch}}
+    ignore:
+      - goos: linux
+        goarch: 386
+      - goos: linux
+        goarch: amd64
+      - goos: linux
+        goarch: arm
+        goarm: 6
+      - goos: linux
+        goarch: arm64
+
+archives:
+  - id: common
+    builds:
+      - common
+    meta: true # hereeeeeee
+    name_template: "{{ .ProjectName }}_{{ .Version }}_common"
+    rlcp: true
+    wrap_in_directory: true
+    files:
+      - src: "dist/{{ .ProjectName }}_{{ .Tag }}_{386,amd64,arm,arm64}"
+        strip_parent: true
+      - src: "docs/*"
+        strip_parent: true
+
+  - id: others
+    builds:
+      - others
+    rlcp: true
+    wrap_in_directory: true
+    files:
+      - src: "docs/*"
+        strip_parent: true
+
+release:
+  name_template: "{{.ProjectName}} v{{.Version}}"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-devel"
+
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
